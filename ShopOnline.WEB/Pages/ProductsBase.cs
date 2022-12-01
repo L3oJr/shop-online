@@ -18,10 +18,7 @@ namespace ShopOnline.Web.Pages
 
         protected IOrderedEnumerable<IGrouping<int, ProductDto>> GetGroupedProductsByCategory()
         {
-            return from product in Products
-                   group product by product.CategoryId into prodByCatGroup
-                   orderby prodByCatGroup.Key
-                   select prodByCatGroup;
+            return Products.GroupBy(p => p.CategoryId).OrderBy(productByGroup => productByGroup.Key);
         }
         
         protected string GetCategoryName(IGrouping<int, ProductDto> groupedProductDtos)
