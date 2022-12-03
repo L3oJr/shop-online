@@ -25,13 +25,13 @@ namespace ShopOnline.Api.Repositories
             if (await CartItemExists(cartItemToAddDto.CartId, cartItemToAddDto.ProductId) == false)
             {
                 var item = await (this.shopOnlineDbContext.Products
+                    .Where(product => product.Id == cartItemToAddDto.ProductId))
                     .Select(product => new CartItem
-                        {
-                            CartId = cartItemToAddDto.CartId,
-                            ProductId = product.Id,
-                            Qty = cartItemToAddDto.Qty,
-                        })
-                    .Where(product => product.Id == cartItemToAddDto.ProductId)).SingleOrDefaultAsync();
+                    {
+                        CartId = cartItemToAddDto.CartId,
+                        ProductId = product.Id,
+                        Qty = cartItemToAddDto.Qty,
+                    }).SingleOrDefaultAsync();
 
                 if (item != null)
                 {
