@@ -11,16 +11,32 @@ namespace ShopOnline.Web.Pages
         public IProductService ProductService { get; set; }
         [Inject]
         public IShoppingCartService ShoppingCartService { get; set; }
+        [Inject]
+        public IManageProductsLocalStorageService ManageProductsLocalStorageService { get; set; }
+        [Inject]
+        public IManageCartItemsLocalStorageService ManageCartItemsLocalStorageService { get; set; }
 
         public IEnumerable<ProductDto> Products { get; set; }
+        public string ErrorMsg { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
-            Products = await ProductService.GetItems();
-            var shoppingCartItems = await ShoppingCartService.GetItems(HardCoded.UserId);
-            var totalQty = shoppingCartItems.Sum(item => item.Qty);
+            try
+            {
+                await ClearLocalStorage();
 
-            ShoppingCartService.RaiseEventOnShoppingCartChanged(totalQty);
+                Products = await ManageProductsLocalStorageService.GetCollection();
+
+                var shoppingCartItems = await ManageCartItemsLocalStorageService.GetCollection();
+                var totalQty = shoppingCartItems.Sum(item => item.Qty);
+
+                ShoppingCartService.RaiseEventOnShoppingCartChanged(totalQty);
+            }
+            catch (Exception ex)
+            {
+
+                ErrorMsg = ex.Message;
+            }
         }
 
         protected IOrderedEnumerable<IGrouping<int, ProductDto>> GetGroupedProductsByCategory()
@@ -31,6 +47,12 @@ namespace ShopOnline.Web.Pages
         protected string GetCategoryName(IGrouping<int, ProductDto> groupedProductDtos)
         {
             return groupedProductDtos.FirstOrDefault(pg => pg.CategoryId == groupedProductDtos.Key).CategoryName;
+        }
+
+        private async Task ClearLocalStorage()
+        {
+            await ManageCartItemsLocalStorageService.RemoveCollection();
+            await ManageProductsLocalStorageService.RemoveCollection();
         }
     }
 }
