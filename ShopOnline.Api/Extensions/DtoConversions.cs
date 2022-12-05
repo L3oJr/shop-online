@@ -15,14 +15,10 @@ namespace ShopOnline.Api.Extensions
             }).ToList();
         }
 
-        public static IEnumerable<ProductDto> ConvertToDto(this IEnumerable<Product> products,
-                                                            IEnumerable<ProductCategory> productCategories)
+        public static IEnumerable<ProductDto> ConvertToDto(this IEnumerable<Product> products)
         {
             return products
-                .Join(productCategories,
-                        product => product.CategoryId,
-                        productCategory => productCategory.Id,
-                        (product, productCategory) => new ProductDto
+                .Select(product => new ProductDto
                         {
                             Id = product.Id,
                             Name = product.Name,
@@ -30,16 +26,15 @@ namespace ShopOnline.Api.Extensions
                             ImageURL = product.ImageURL,
                             Price = product.Price,
                             Qty = product.Qty,
-                            CategoryId = product.CategoryId,
-                            CategoryName = productCategory.Name
+                            CategoryId = product.ProductCategory.Id,
+                            CategoryName = product.ProductCategory.Name
                         }
                 ).ToList();
         }
 
-        public static ProductDto ConvertToDto(this Product product,
-                                               ProductCategory productCategory)
+        public static ProductDto ConvertToDto(this Product product)
         {
-            return (new ProductDto
+            return new ProductDto
             {
                 Id = product.Id,
                 Name = product.Name,
@@ -47,9 +42,9 @@ namespace ShopOnline.Api.Extensions
                 ImageURL = product.ImageURL,
                 Price = product.Price,
                 Qty = product.Qty,
-                CategoryId = product.CategoryId,
-                CategoryName = productCategory.Name
-            });
+                CategoryId = product.ProductCategory.Id,
+                CategoryName = product.ProductCategory.Name
+            };
         }
 
         public static IEnumerable<CartItemDto> ConvertToDto(this IEnumerable<CartItem> cartItems,
