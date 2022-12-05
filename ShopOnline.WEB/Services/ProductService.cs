@@ -5,7 +5,7 @@ using System.Net.Http.Json;
 
 namespace ShopOnline.Web.Services
 {
-    public class ProductService : IProductService 
+    public class ProductService : IProductService
     {
         private readonly HttpClient httpClient;
 
@@ -19,13 +19,13 @@ namespace ShopOnline.Web.Services
             try
             {
                 var response = await this.httpClient.GetAsync($"api/Product/{id}");
-                
+
                 if (!response.IsSuccessStatusCode)
                 {
                     var message = await response.Content.ReadAsStringAsync();
                     throw new Exception(message);
                 }
-                
+
                 if (response.StatusCode == HttpStatusCode.NoContent)
                 {
                     return default;
@@ -62,6 +62,57 @@ namespace ShopOnline.Web.Services
             catch (Exception)
             {
 
+                throw;
+            }
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetItemsByCategory(int categoryId)
+        {
+            try
+            {
+                var response = await this.httpClient.GetAsync($"api/Product/{categoryId}/GetItemsByCategory");
+                if (!response.IsSuccessStatusCode)
+                {
+                    var message = await response.Content.ReadAsStringAsync();
+                    throw new Exception(message);
+                }
+
+                if (response.StatusCode == HttpStatusCode.NoContent)
+                {
+                    return Enumerable.Empty<ProductDto>();
+                }
+
+                return await response.Content.ReadFromJsonAsync<IEnumerable<ProductDto>>();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<IEnumerable<ProductCategoryDto>> GetProductCategories()
+        {
+            try
+            {
+                var response = await httpClient.GetAsync("api/Product/GetProductCategories");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    if (response.StatusCode == HttpStatusCode.NoContent)
+                    {
+                        return Enumerable.Empty<ProductCategoryDto>();
+                    }
+                    return await response.Content.ReadFromJsonAsync<IEnumerable<ProductCategoryDto>>();
+                }
+                else
+                {
+                    var message = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"HttpStatusCode = {response.StatusCode} Message - {message}");
+                }
+            }
+            catch (Exception)
+            {
                 throw;
             }
         }
